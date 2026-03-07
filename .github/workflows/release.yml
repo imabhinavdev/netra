@@ -48,7 +48,15 @@ jobs:
         working-directory: cli
         shell: bash
         run: |
-          pdm run pyinstaller --onefile --name netra --clean main.py
+          pdm run pyinstaller --onefile --name netra --clean \
+            --hidden-import typer \
+            --hidden-import click \
+            --hidden-import rich \
+            --hidden-import rich.progress \
+            --collect-submodules typer \
+            --collect-submodules click \
+            --collect-submodules rich \
+            main.py
           mkdir -p ../dist
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             cp dist/netra.exe ../dist/${{ matrix.artifact_name }}.exe
