@@ -1,0 +1,15 @@
+[project]
+name = "netra"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Abhinav Singh", email = "abhinavas430@gmail.com"},
+]
+dependencies = ["typer>=0.24.1"]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
