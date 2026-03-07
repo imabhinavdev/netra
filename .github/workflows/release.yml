@@ -1,0 +1,109 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: netra-linux-x86_64
+            ext: ""
+          - os: windows-latest
+            artifact_name: netra-windows-x86_64
+            ext: ".exe"
+          - os: macos-latest
+            artifact_name: netra-macos-x86_64
+            ext: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          cache: "pdm"
+
+      - name: Install dependencies
+        run: pdm install
+
+      - name: Install PyInstaller
+        run: pdm run pip install pyinstaller
+
+      - name: Build binary
+        working-directory: cli
+        shell: bash
+        run: |
+          pdm run pyinstaller --onefile --name netra --clean main.py
+          mkdir -p ../dist
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp dist/netra.exe ../dist/${{ matrix.artifact_name }}.exe
+          else
+            cp dist/netra ../dist/${{ matrix.artifact_name }}
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}${{ matrix.ext }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version and tag
+        id: meta
+        run: |
+          VERSION=$(grep '^version' pyproject.toml | cut -d '"' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # Unique tag per push so every push can create a release
+          echo "tag=release-${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          for dir in release-artifacts/*/; do
+            for f in "$dir"*; do
+              [ -f "$f" ] && cp "$f" release-files/
+            done
+          done
+          ls -la release-files/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: netra ${{ steps.meta.outputs.version }} (${{ github.sha }})
+          body: |
+            Built from main @ ${{ github.sha }}
+            ## Assets
+            See below for platform-specific binaries.
+          files: release-files/*
+          draft: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
