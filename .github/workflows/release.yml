@@ -36,7 +36,11 @@ jobs:
       - name: Install PDM
         uses: pdm-project/setup-pdm@v4
         with:
+          python-version: "3.12"
           cache: true
+
+      - name: Verify Python version
+        run: python --version && pdm info
 
       - name: Install dependencies
         run: pdm install
