@@ -1,0 +1,47 @@
+# Netra default configuration
+# Used when no user config or prompt value is provided
+
+deployment:
+  mode: single  # single | distributed
+
+components:
+  prometheus: true
+  grafana: true
+  loki: true
+  promtail: true
+  node_exporter: true
+
+ports:
+  grafana: 3000
+  prometheus: 9090
+  loki: 3100
+  promtail: 9080
+  node_exporter: 9100
+
+prometheus:
+  scrape_interval: 15s
+
+grafana:
+  auth_enabled: false
+  admin_user: admin
+  admin_password: admin
+
+logs:
+  docker: true
+  system: true
+  custom_paths: []
+
+# Default install directory (override with prompt or env)
+install_dir: "~/netra"
+
+# Firewall: allow Netra to open ports
+firewall:
+  allow_config: false
+
+# Docker image tags (pin for reproducibility)
+images:
+  prometheus: prom/prometheus:latest
+  grafana: grafana/grafana:latest
+  loki: grafana/loki:latest
+  promtail: grafana/promtail:latest
+  node_exporter: prom/node-exporter:latest

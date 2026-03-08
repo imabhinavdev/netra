@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: pdm install
 
+      - name: Run tests
+        run: pdm run pytest tests/ -v
+
       - name: Install PyInstaller
         run: pdm run pip install pyinstaller
 
@@ -53,6 +56,9 @@ jobs:
             --hidden-import click \
             --hidden-import rich \
             --hidden-import rich.progress \
+            --hidden-import jinja2 \
+            --hidden-import yaml \
+            --hidden-import paramiko \
             --collect-submodules typer \
             --collect-submodules click \
             --collect-submodules rich \

@@ -1,0 +1,8 @@
+# Grafana dashboard provisioning - Netra
+apiVersion: 1
+providers:
+  - name: "Netra"
+    folder: "Netra"
+    type: file
+    options:
+      path: netra
