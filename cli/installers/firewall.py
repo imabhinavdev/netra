@@ -44,6 +44,14 @@ def _open_ufw(ports: List[int]) -> bool:
     for port in ports:
         r = run(["ufw", "allow", f"{port}/tcp"])
         if not r.success:
+            err = (r.stderr or "").lower()
+            if "root" in err or "permission" in err or "eacces" in err:
+                console.print(
+                    "[yellow]Firewall configuration requires root. "
+                    "Run with [bold]sudo[/bold] to open ports, or open them manually:[/yellow]"
+                )
+                console.print("  [dim]Ports: " + ", ".join(str(p) for p in ports) + "[/dim]")
+                return False
             console.print(f"[red]ufw allow {port} failed: {r.stderr}[/red]")
             return False
     r = run(["ufw", "status"])

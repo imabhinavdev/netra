@@ -1,5 +1,6 @@
 """Netra install command - full workflow."""
 
+import os
 import shutil
 from pathlib import Path
 from typing import Optional
@@ -41,6 +42,15 @@ def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
     if dashboards_root.exists():
         for f in dashboards_root.glob("*.json"):
             shutil.copy(f, netra_dash / f.name)
+
+    # Ensure Grafana container (runs as non-root) can read provisioning files
+    for root, dirs, files in os.walk(prov_dir):
+        for d in dirs:
+            os.chmod(Path(root) / d, 0o755)
+        for name in files:
+            os.chmod(Path(root) / name, 0o644)
+    if prov_dir.exists():
+        os.chmod(prov_dir, 0o755)
 
 
 def _gather_config_from_prompts() -> NetraConfig:
