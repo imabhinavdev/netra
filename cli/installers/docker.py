@@ -22,7 +22,7 @@ def is_compose_available() -> bool:
     if result.success:
         return True
     # Fallback: standalone compose
-    return which("docker-compose") is not None
+    return which("docker compose") is not None
 
 
 def ensure_docker(install_if_missing: bool = True) -> bool:

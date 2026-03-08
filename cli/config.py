@@ -66,7 +66,7 @@ class NetraConfig:
     # Firewall
     firewall_allow: bool = False
 
-    # Images (for docker-compose)
+    # Images (for docker compose)
     image_prometheus: str = "prom/prometheus:latest"
     image_grafana: str = "grafana/grafana:latest"
     image_loki: str = "grafana/loki:latest"

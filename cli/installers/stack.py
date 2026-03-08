@@ -11,7 +11,7 @@ def compose_up(install_dir: Path) -> bool:
     result = run(["docker", "compose", "up", "-d"], cwd=str(install_dir), timeout=120)
     if result.success:
         return True
-    result = run(["docker-compose", "up", "-d"], cwd=str(install_dir), timeout=120)
+    result = run(["docker", "compose", "up", "-d"], cwd=str(install_dir), timeout=120)
     if not result.success:
         console.print(f"[red]Compose up failed: {result.stderr}[/red]")
         return False
@@ -23,7 +23,7 @@ def compose_pull(install_dir: Path) -> bool:
     result = run(["docker", "compose", "pull"], cwd=str(install_dir), timeout=300)
     if result.success:
         return True
-    result = run(["docker-compose", "pull"], cwd=str(install_dir), timeout=300)
+    result = run(["docker", "compose", "pull"], cwd=str(install_dir), timeout=300)
     return result.success
 
 
@@ -35,7 +35,7 @@ def compose_down(install_dir: Path, volumes: bool = True) -> bool:
     result = run(args, cwd=str(install_dir), timeout=60)
     if result.success:
         return True
-    args = ["docker-compose", "down"] + (["-v"] if volumes else [])
+    args = ["docker", "compose", "down"] + (["-v"] if volumes else [])
     result = run(args, cwd=str(install_dir), timeout=60)
     return result.success
 
@@ -45,5 +45,5 @@ def compose_ps(install_dir: Path) -> str:
     result = run(["docker", "compose", "ps"], cwd=str(install_dir))
     if result.success:
         return result.stdout
-    result = run(["docker-compose", "ps"], cwd=str(install_dir))
+    result = run(["docker", "compose", "ps"], cwd=str(install_dir))
     return result.stdout if result.success else ""
