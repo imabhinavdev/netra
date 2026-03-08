@@ -5,18 +5,16 @@ from typing import TYPE_CHECKING
 
 from jinja2 import Environment, FileSystemLoader
 
+from cli.utils.paths import get_templates_dir
+
 if TYPE_CHECKING:
     from cli.config import NetraConfig
     from cli.utils.file_writer import FileWriter
 
-# Repo root (parent of cli/)
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_TEMPLATES_DIR = _PROJECT_ROOT / "templates"
-
 
 def generate(config: "NetraConfig", file_writer: "FileWriter", install_dir: Path) -> None:
     """Generate docker-compose.yml from template and write to install_dir."""
-    env = Environment(loader=FileSystemLoader(str(_TEMPLATES_DIR)))
+    env = Environment(loader=FileSystemLoader(str(get_templates_dir())))
     template = env.get_template("docker-compose.yml.j2")
     context = {
         "install_prometheus": config.install_prometheus,

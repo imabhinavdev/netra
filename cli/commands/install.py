@@ -19,9 +19,7 @@ from cli.prompts import (
 from cli.state import write_state
 from cli.utils.file_writer import FileWriter
 from cli.utils.logger import console
-
-# Repo root (parent of cli/)
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+from cli.utils.paths import _resource_base
 
 
 def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
@@ -31,18 +29,16 @@ def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
     netra_dash = prov_dir / "netra"
     netra_dash.mkdir(parents=True, exist_ok=True)
 
-    configs_root = REPO_ROOT / "configs"
-    dashboards_root = REPO_ROOT / "dashboards"
-    if not dashboards_root.exists():
-        dashboards_root = Path(__file__).resolve().parent.parent / "dashboards"
-    if not configs_root.exists():
-        configs_root = Path(__file__).resolve().parent.parent / "configs"
+    base = _resource_base()
+    configs_root = base / "configs"
+    dashboards_root = base / "dashboards"
 
     prov_yaml = configs_root / "grafana-dashboards.yaml"
     if prov_yaml.exists():
         shutil.copy(prov_yaml, prov_dir / "dashboards.yaml")
-    for f in (dashboards_root or Path()).glob("*.json"):
-        shutil.copy(f, netra_dash / f.name)
+    if dashboards_root.exists():
+        for f in dashboards_root.glob("*.json"):
+            shutil.copy(f, netra_dash / f.name)
 
 
 def _gather_config_from_prompts() -> NetraConfig:

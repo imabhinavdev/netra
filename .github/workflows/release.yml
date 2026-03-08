@@ -9,21 +9,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: netra-linux-x86_64
-            ext: ""
-          - os: windows-latest
-            artifact_name: netra-windows-x86_64
-            ext: ".exe"
-          - os: macos-latest
-            artifact_name: netra-macos-x86_64
-            ext: ""
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +31,6 @@ jobs:
         run: pip install pyinstaller
 
       - name: Build binary
-        shell: bash
         run: |
           pyinstaller --onefile --name netra --clean \
             --hidden-import typer \
@@ -58,20 +43,19 @@ jobs:
             --collect-submodules typer \
             --collect-submodules click \
             --collect-submodules rich \
+            --add-data "templates:templates" \
+            --add-data "configs:configs" \
+            --add-data "dashboards:dashboards" \
             --paths . \
             cli/main.py
           mkdir -p dist
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            cp dist/netra.exe dist/${{ matrix.artifact_name }}.exe
-          else
-            cp dist/netra dist/${{ matrix.artifact_name }}
-          fi
+          cp dist/netra dist/netra-linux-x86_64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: dist/${{ matrix.artifact_name }}${{ matrix.ext }}
+          name: netra-linux-x86_64
+          path: dist/netra-linux-x86_64
 
   release:
     needs: build
@@ -111,7 +95,7 @@ jobs:
           body: |
             Built from main @ ${{ github.sha }}
             ## Assets
-            See below for platform-specific binaries.
+            Linux x86_64 binary.
           files: release-files/*
           draft: false
           make_latest: true
