@@ -1,6 +1,6 @@
 [project]
 name = "netra"
-version = "0.1.1"
+version = "0.1.2"
 description = "CLI to install and manage a complete observability stack (Prometheus, Grafana, Loki, Promtail, Node Exporter) on Linux"
 authors = [
     {name = "Abhinav Singh", email = "abhinavas430@gmail.com"},
