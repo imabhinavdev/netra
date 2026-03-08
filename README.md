@@ -1,5 +1,11 @@
 # Netra – Observability Stack Bootstrap CLI
 
+**Netra** is an open-source DevOps CLI that installs and manages a complete observability stack (Prometheus, Grafana, Loki, Promtail, Node Exporter) on Linux servers.
+
+**Author:** Abhinav Singh · **License:** [MIT](LICENSE) · **Repository:** [github.com/imabhinavdev/netra](https://github.com/imabhinavdev/netra)
+
+---
+
 Netra is a **DevOps CLI tool written in Python** that automatically installs and manages a complete observability stack on Linux servers.
 
 The tool simplifies deployment of monitoring infrastructure using:
@@ -33,7 +39,7 @@ Netra will detect your environment, ask a few questions, generate configs, insta
 From source (PDM):
 
 ```bash
-git clone <repo>
+git clone https://github.com/imabhinavdev/netra.git
 cd netra
 pdm install
 pdm run netra --help
@@ -118,6 +124,12 @@ Default install directory: `~/netra`. Use `--install-dir` with `status`, `update
 
 ---
 
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community standards. To report security issues, see [SECURITY.md](SECURITY.md).
+
+---
+
 ## License
 
-MIT
+Copyright (c) 2025 Abhinav Singh. Licensed under the [MIT License](LICENSE).
