@@ -15,8 +15,13 @@ Then open [http://localhost:8080](http://localhost:8080). Or open `index.html` d
 
 ## Deploy (e.g. GitHub Pages)
 
-**Important:** In repo **Settings → Pages**, set **Source** to **GitHub Actions** (not "Deploy from a branch"). Otherwise GitHub may serve the repository README instead of this website. The workflow in `.github/workflows/pages.yml` copies `website/*` to the Pages artifact.
+**You won’t see a “website” folder in the Pages dropdown.** GitHub only offers **Root** or **/docs** when you use “Deploy from a branch,” and it does not list custom folders like `website/`.
 
-1. In repo **Settings → Pages**, set source to **GitHub Actions**.
-2. Push to `main` (or trigger the workflow); the Deploy site job will build and publish the site.
-3. Root of the site will serve `index.html`; `docs.html` is linked from the landing page.
+**Use the GitHub Actions source instead:**
+
+1. In the repo go to **Settings → Pages**.
+2. Under **Build and deployment**, set **Source** to **GitHub Actions** (not “Deploy from a branch”).
+3. The workflow in `.github/workflows/pages.yml` builds the site from the `website/` folder and deploys it. No folder dropdown is used—the workflow copies `website/*` into the Pages artifact.
+4. Push to `main` or run the “Deploy site” workflow; the site will be live at your Pages URL. The root URL serves `index.html`; `docs.html` is linked from the landing page.
+
+If you leave Source on “Deploy from a branch,” GitHub will serve the repo root or `/docs`, so you’ll see the README instead of this website.
