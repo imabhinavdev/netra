@@ -3,15 +3,16 @@
 from pathlib import Path
 
 import typer
+from rich.panel import Panel
 
 from cli.utils.logger import console
 
 
 def prompt_deployment_mode() -> str:
     """Single server or distributed."""
-    console.print("\nDeployment mode")
-    console.print("  1 Single server")
-    console.print("  2 Distributed")
+    console.print(Panel("[bold]Deployment[/bold]", style="dim"))
+    console.print("  [dim]1[/dim] Single server")
+    console.print("  [dim]2[/dim] Distributed")
     choice = typer.prompt("Choice", default="1")
     return "distributed" if choice == "2" else "single"
 
@@ -24,17 +25,18 @@ def prompt_install_dir() -> str:
 
 def prompt_firewall() -> bool:
     """Allow Netra to configure firewall rules?"""
-    return typer.confirm("Allow Netra to configure firewall rules?", default=False)
+    return typer.confirm("Configure firewall rules (ufw)?", default=False)
 
 
 def prompt_components() -> dict:
-    """Install Prometheus? Grafana? Loki? Promtail? (Node Exporter implied with Prometheus)."""
+    """Install Prometheus? Grafana? Loki? Promtail?"""
+    console.print(Panel("[bold]Components[/bold]", style="dim"))
     return {
-        "install_prometheus": typer.confirm("Install Prometheus?", default=True),
-        "install_grafana": typer.confirm("Install Grafana?", default=True),
-        "install_loki": typer.confirm("Install Loki?", default=True),
-        "install_promtail": typer.confirm("Install Promtail?", default=True),
-        "install_node_exporter": True,  # Implied when Prometheus is installed
+        "install_prometheus": typer.confirm("Prometheus", default=True),
+        "install_grafana": typer.confirm("Grafana", default=True),
+        "install_loki": typer.confirm("Loki", default=True),
+        "install_promtail": typer.confirm("Promtail", default=True),
+        "install_node_exporter": True,
     }
 
 

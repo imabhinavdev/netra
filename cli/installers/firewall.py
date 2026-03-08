@@ -42,7 +42,7 @@ def open_ports(ports: Optional[List[int]] = None) -> bool:
 
 def _open_ufw(ports: List[int]) -> bool:
     for port in ports:
-        r = run(["ufw", "allow", str(port), "/tcp"])
+        r = run(["ufw", "allow", f"{port}/tcp"])
         if not r.success:
             console.print(f"[red]ufw allow {port} failed: {r.stderr}[/red]")
             return False

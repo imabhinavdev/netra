@@ -20,6 +20,8 @@ from cli.state import write_state
 from cli.utils.file_writer import FileWriter
 from cli.utils.logger import console
 from cli.utils.paths import _resource_base
+from cli.utils.ports import get_ports_from_config, resolve_ports
+from cli.utils.banner import print_banner
 
 
 def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
@@ -58,6 +60,8 @@ def install_netra(
     dry_run: bool = False,
 ) -> None:
     """Run full install workflow: config, generate, Docker, firewall, compose up."""
+    print_banner()
+
     try:
         if config_path:
             config = NetraConfig.from_yaml_file(config_path)
@@ -73,6 +77,14 @@ def install_netra(
 
     install_dir = config.resolve_install_dir()
     file_writer = FileWriter(dry_run=dry_run)
+
+    # Resolve port conflicts: if a requested port is in use, use next available and inform user
+    port_changes = resolve_ports(config)
+    if port_changes:
+        console.print("[yellow]Some ports were in use; using next available:[/yellow]")
+        for name, old_p, new_p in port_changes:
+            console.print(f"  [dim]{name}: {old_p} → {new_p}[/dim]")
+        console.print()
 
     if dry_run:
         console.print("[bold]Dry run - no changes will be made[/bold]\n")
@@ -111,7 +123,7 @@ def install_netra(
         _copy_dashboards_and_provisioning(install_dir)
 
     if config.firewall_allow:
-        open_ports()
+        open_ports(ports=get_ports_from_config(config))
 
     if not compose_up(install_dir):
         raise typer.Exit(1)
