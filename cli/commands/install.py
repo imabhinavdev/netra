@@ -28,7 +28,7 @@ from cli.utils.banner import print_banner
 
 
 def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
-    """Copy dashboards and Grafana provisioning into install_dir."""
+    """Copy dashboards and Grafana provisioning (dashboards + datasources) into install_dir."""
     # grafana-provisioning/dashboards.yaml and grafana-provisioning/netra/*.json
     prov_dir = install_dir / "grafana-provisioning"
     netra_dash = prov_dir / "netra"
@@ -45,6 +45,13 @@ def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
         for f in dashboards_root.glob("*.json"):
             shutil.copy(f, netra_dash / f.name)
 
+    # Datasources: Prometheus and Loki (internal Docker URLs)
+    datasources_dir = install_dir / "grafana-provisioning-datasources"
+    datasources_dir.mkdir(parents=True, exist_ok=True)
+    datasources_src = configs_root / "grafana-datasources.yaml"
+    if datasources_src.exists():
+        shutil.copy(datasources_src, datasources_dir / "datasources.yaml")
+
     # Ensure Grafana container (runs as non-root) can read provisioning files
     for root, dirs, files in os.walk(prov_dir):
         for d in dirs:
@@ -53,6 +60,11 @@ def _copy_dashboards_and_provisioning(install_dir: Path) -> None:
             os.chmod(Path(root) / name, 0o644)
     if prov_dir.exists():
         os.chmod(prov_dir, 0o755)
+    if datasources_dir.exists():
+        os.chmod(datasources_dir, 0o755)
+        for f in datasources_dir.iterdir():
+            if f.is_file():
+                os.chmod(f, 0o644)
 
 
 def _gather_config_from_prompts() -> NetraConfig:

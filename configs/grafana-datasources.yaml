@@ -1,0 +1,15 @@
+# Grafana datasource provisioning - Netra
+# Prometheus and Loki use internal Docker URLs (not exposed on host when using nginx-proxy)
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    access: proxy
+    uid: prometheus
+    isDefault: true
+  - name: Loki
+    type: loki
+    url: http://loki:3100
+    access: proxy
+    uid: loki

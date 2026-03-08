@@ -39,7 +39,11 @@
         <a href="#install-prompts">Install prompts explained</a>
         <span class="nav-section">Config</span>
         <a href="#config-file">Config file</a>
+        <a href="#grafana-datasources">Grafana datasources</a>
         <a href="#after-install">After install</a>
+        <a href="#install-dir-layout">Install directory layout</a>
+        <span class="nav-section">Reference</span>
+        <a href="#troubleshooting">Troubleshooting</a>
         <span class="nav-section">Community</span>
         <a href="#contributing">Contributing</a>
       </nav>
@@ -113,6 +117,8 @@ pdm run netra --help</code></pre>
       <h2 id="install-prompts">Install prompts explained</h2>
       <p>When you run <code>netra install</code> without a config file, Netra will ask you a bunch of questions. Here’s what each one means—and yes, we’ll keep it short and slightly silly.</p>
 
+      <p><strong>Prompt order (and typical defaults):</strong> (1) Deployment mode → single; (2) Install directory → ~/netra; (3) Firewall (ufw) → yes/no; (4) Components (Prometheus, Grafana, Loki, Promtail, Node Exporter) → all on for single server; (5) Network / bind IP → choose interface; (6) Grafana (remote?, auth?, port) → same server, auth on, port 3000; (7) Prometheus (targets, scrape interval); (8) Logs (Docker, system, custom dirs, Loki destination); (9) If nginx-proxy detected: use proxy?, domain, email.</p>
+
       <h3 id="prompt-deployment">Deployment</h3>
       <p><strong>Single server</strong> vs <strong>Distributed</strong>. One box to rule them all, or spread the love across multiple machines. Pick single unless you’re doing a multi-host setup; we won’t judge either way.</p>
 
@@ -150,6 +156,20 @@ pdm run netra --help</code></pre>
       <p>Use a YAML file to avoid interactive prompts:</p>
       <pre><code>netra install config.yaml</code></pre>
 
+      <p><strong>Config keys (full list):</strong></p>
+      <ul>
+        <li><code>deployment.mode</code> – single | distributed</li>
+        <li><code>install_dir</code> – e.g. ~/netra (top-level)</li>
+        <li><code>components.prometheus</code>, <code>components.grafana</code>, <code>components.loki</code>, <code>components.promtail</code>, <code>components.node_exporter</code> – boolean</li>
+        <li><code>grafana.enabled</code>, <code>grafana.port</code>, <code>grafana.admin_user</code>, <code>grafana.admin_password</code></li>
+        <li><code>prometheus.scrape_interval</code>, <code>prometheus.port</code></li>
+        <li><code>logs.docker</code>, <code>logs.system</code> – for Promtail</li>
+        <li><code>loki.port</code></li>
+        <li><code>firewall.allow_config</code> – open ports (requires root)</li>
+        <li><code>ports.grafana</code>, <code>ports.prometheus</code>, <code>ports.loki</code>, <code>ports.node_exporter</code></li>
+        <li><code>nginx_proxy.enabled</code>, <code>nginx_proxy.domain</code>, <code>nginx_proxy.email</code>, <code>nginx_proxy.network</code> – when using nginx-proxy (only Grafana public)</li>
+      </ul>
+
       <p>Example <code>config.yaml</code>:</p>
       <pre><code>deployment:
   mode: single
@@ -170,16 +190,43 @@ logs:
   enabled: true
   domain: grafana.example.com
   email: you@example.com
-  # network: nginx-proxy   # optional, default</code></pre>
+  #   network: nginx-proxy   # optional, default</code></pre>
+
+      <h2 id="grafana-datasources">Grafana datasources (Prometheus and Loki)</h2>
+      <p>Netra provisions <strong>Prometheus</strong> and <strong>Loki</strong> as Grafana datasources automatically. They use <strong>internal</strong> Docker URLs so Grafana talks to them over the Docker network—no public exposure:</p>
+      <ul>
+        <li><strong>Prometheus</strong> – <code>http://prometheus:9090</code>, UID <code>prometheus</code> (default datasource; used by bundled dashboards)</li>
+        <li><strong>Loki</strong> – <code>http://loki:3100</code>, UID <code>loki</code></li>
+      </ul>
+      <p>The provisioning file is <code>grafana-provisioning-datasources/datasources.yaml</code> in your install directory. When using nginx-proxy, Prometheus and Loki are bound to 127.0.0.1 on the host; Grafana still reaches them via these internal URLs.</p>
 
       <h2 id="after-install">After install</h2>
-      <p>Netra prints the service URLs, for example:</p>
+      <p>Netra prints the service URLs.</p>
+      <p><strong>Without nginx-proxy:</strong> All services listen on the chosen bind IP. Example: Grafana http://&lt;bind_ip&gt;:3000, Prometheus http://&lt;bind_ip&gt;:9090, Loki http://&lt;bind_ip&gt;:3100.</p>
+      <p><strong>With nginx-proxy:</strong> Only Grafana is public (e.g. https://grafana.example.com). Prometheus, Loki, and Node Exporter are bound to <strong>127.0.0.1</strong> and are only reachable on the server (Grafana reaches them via internal Docker URLs).</p>
+      <p>Default install directory: <code>~/netra</code>. State is written to <code>netra_state.yaml</code> in that directory. Use <code>--install-dir</code> with <code>status</code>, <code>update</code>, and <code>uninstall</code> if you chose another path.</p>
+
+      <h3 id="firewall">Firewall</h3>
+      <p>If you enable firewall configuration, Netra will open the ports used by the stack (Grafana 3000, Prometheus 9090, Loki 3100, Node Exporter 9100). This requires <strong>root</strong> (e.g. <code>sudo netra install</code>). If you skip firewall setup, Netra will still print which ports to open manually. When using nginx-proxy, only the proxy needs to be reachable; Grafana’s port is not opened on the host.</p>
+
+      <h2 id="install-dir-layout">Install directory layout</h2>
+      <p>After <code>netra install</code>, the install directory (e.g. <code>~/netra</code>) contains:</p>
       <ul>
-        <li><strong>Grafana</strong> – http://&lt;bind_ip&gt;:3000</li>
-        <li><strong>Prometheus</strong> – http://&lt;bind_ip&gt;:9090</li>
-        <li><strong>Loki</strong> – http://&lt;bind_ip&gt;:3100</li>
+        <li><code>docker-compose.yml</code> – generated Compose file</li>
+        <li><code>prometheus.yml</code> – Prometheus config (if Prometheus installed)</li>
+        <li><code>loki.yml</code> – Loki config (if Loki installed)</li>
+        <li><code>promtail.yml</code> – Promtail config (if Promtail installed)</li>
+        <li><code>grafana-provisioning/</code> – dashboard provisioning: <code>dashboards.yaml</code>, <code>netra/*.json</code></li>
+        <li><code>grafana-provisioning-datasources/</code> – datasource provisioning: <code>datasources.yaml</code> (Prometheus + Loki, internal URLs)</li>
+        <li><code>netra_state.yaml</code> – install state (ports, options)</li>
       </ul>
-      <p>Default install directory: <code>~/netra</code>. Use <code>--install-dir</code> with <code>status</code>, <code>update</code>, and <code>uninstall</code> if you chose another path.</p>
+
+      <h2 id="troubleshooting">Troubleshooting</h2>
+      <ul>
+        <li><strong>Grafana “permission denied” on provisioning:</strong> Ensure the install directory and <code>grafana-provisioning</code> / <code>grafana-provisioning-datasources</code> directories and files are readable by the Grafana container. Netra sets 755 on dirs and 644 on files.</li>
+        <li><strong>Loki errors:</strong> Check <code>loki.yml</code> in the install directory and ensure paths and ports match your setup.</li>
+        <li><strong>Port already in use:</strong> Netra will offer the next available port; you can also set ports explicitly in your config file.</li>
+      </ul>
 
       <h2 id="contributing">Contributing</h2>
       <p>Contributions are welcome. See <a href="https://github.com/imabhinavdev/netra/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines and <a href="https://github.com/imabhinavdev/netra/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a> for community standards. To report security issues, see <a href="https://github.com/imabhinavdev/netra/blob/main/SECURITY.md">SECURITY.md</a>.</p>
