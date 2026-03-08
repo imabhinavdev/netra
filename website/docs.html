@@ -27,7 +27,8 @@
   </header>
 
   <div class="container docs-layout">
-    <aside class="docs-sidebar">
+    <div class="docs-sidebar-overlay" id="docs-sidebar-overlay" aria-hidden="true"></div>
+    <aside class="docs-sidebar" id="docs-sidebar">
       <nav>
         <span class="nav-section">Overview</span>
         <a href="#overview">Overview</a>
@@ -50,6 +51,7 @@
     </aside>
 
     <article class="docs-content">
+      <button type="button" class="docs-sidebar-toggle" id="docs-sidebar-toggle" aria-label="Open table of contents">Contents</button>
       <h1>Documentation</h1>
       <p>Netra is an open-source DevOps CLI that installs and manages a complete observability stack (Prometheus, Grafana, Loki, Promtail, Node Exporter) on Linux servers.</p>
 
@@ -88,6 +90,7 @@ pdm run netra --help</code></pre>
       <p>If <code>pdm install</code> fails with a requirement error, use the pip method above or run <code>pdm run pip install -r requirements.txt</code>.</p>
 
       <h2 id="commands">Commands</h2>
+      <div class="table-wrapper">
       <table>
         <thead>
           <tr>
@@ -107,6 +110,7 @@ pdm run netra --help</code></pre>
           <tr><td><code>netra check</code></td><td>Quick environment check</td></tr>
         </tbody>
       </table>
+      </div>
 
       <h2 id="deployment-modes">Deployment modes</h2>
       <ul>
@@ -245,6 +249,32 @@ logs:
     document.getElementById('menu-toggle').addEventListener('click', function () {
       document.getElementById('nav-links').classList.toggle('is-open');
     });
+
+    (function () {
+      var sidebar = document.getElementById('docs-sidebar');
+      var overlay = document.getElementById('docs-sidebar-overlay');
+      var toggle = document.getElementById('docs-sidebar-toggle');
+      function openSidebar() {
+        sidebar.classList.add('is-open');
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-open');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+      if (toggle) toggle.addEventListener('click', openSidebar);
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+      sidebar.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          if (window.innerWidth <= 900) closeSidebar();
+        });
+      });
+    })();
+
     // Highlight active doc link from scroll position
     var sections = document.querySelectorAll('.docs-content h2[id]');
     var navLinks = document.querySelectorAll('.docs-sidebar a[href^="#"]');
