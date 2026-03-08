@@ -66,6 +66,12 @@ class NetraConfig:
     # Firewall
     firewall_allow: bool = False
 
+    # nginx-proxy (only Grafana exposed publicly)
+    use_nginx_proxy: bool = False
+    nginx_proxy_domain: Optional[str] = None
+    nginx_proxy_email: Optional[str] = None
+    nginx_proxy_network: str = "nginx-proxy"
+
     # Images (for docker compose)
     image_prometheus: str = "prom/prometheus:latest"
     image_grafana: str = "grafana/grafana:latest"
@@ -137,6 +143,15 @@ class NetraConfig:
 
         fw = d.get("firewall") or {}
         cfg.firewall_allow = fw.get("allow_config", cfg.firewall_allow)
+
+        proxy = d.get("nginx_proxy") or {}
+        cfg.use_nginx_proxy = proxy.get("enabled", cfg.use_nginx_proxy)
+        if "domain" in proxy:
+            cfg.nginx_proxy_domain = proxy.get("domain")
+        if "email" in proxy:
+            cfg.nginx_proxy_email = proxy.get("email")
+        if "network" in proxy:
+            cfg.nginx_proxy_network = proxy.get("network", cfg.nginx_proxy_network)
 
         if "install_dir" in d:
             cfg.install_dir = str(d["install_dir"])

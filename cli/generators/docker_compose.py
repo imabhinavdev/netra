@@ -35,6 +35,10 @@ def generate(config: "NetraConfig", file_writer: "FileWriter", install_dir: Path
         "image_loki": config.image_loki,
         "image_promtail": config.image_promtail,
         "image_node_exporter": config.image_node_exporter,
+        "use_nginx_proxy": getattr(config, "use_nginx_proxy", False),
+        "nginx_proxy_domain": getattr(config, "nginx_proxy_domain", None),
+        "nginx_proxy_email": getattr(config, "nginx_proxy_email", None),
+        "nginx_proxy_network": getattr(config, "nginx_proxy_network", "nginx-proxy"),
     }
     content = template.render(**context)
     path = install_dir / "docker-compose.yml"

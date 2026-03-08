@@ -36,6 +36,7 @@
         <a href="#installation">Installation</a>
         <a href="#commands">Commands</a>
         <a href="#deployment-modes">Deployment modes</a>
+        <a href="#install-prompts">Install prompts explained</a>
         <span class="nav-section">Config</span>
         <a href="#config-file">Config file</a>
         <a href="#after-install">After install</a>
@@ -109,6 +110,42 @@ pdm run netra --help</code></pre>
         <li><strong>Distributed</strong> – Run components on different hosts; use config files or multiple <code>netra install</code> runs with different options.</li>
       </ul>
 
+      <h2 id="install-prompts">Install prompts explained</h2>
+      <p>When you run <code>netra install</code> without a config file, Netra will ask you a bunch of questions. Here’s what each one means—and yes, we’ll keep it short and slightly silly.</p>
+
+      <h3 id="prompt-deployment">Deployment</h3>
+      <p><strong>Single server</strong> vs <strong>Distributed</strong>. One box to rule them all, or spread the love across multiple machines. Pick single unless you’re doing a multi-host setup; we won’t judge either way.</p>
+
+      <h3 id="prompt-install-dir">Installation directory</h3>
+      <p>Where Netra will drop the compose file, configs, and state. Default is <code>~/netra</code>. No, we won’t judge your path—just make sure you have write access.</p>
+
+      <h3 id="prompt-firewall">Configure firewall (ufw)?</h3>
+      <p>If you say yes, Netra will try to open the ports the stack needs. This requires <strong>root</strong> (run with <code>sudo</code>). If you skip it, we’ll still tell you which ports to open manually. Your server, your rules.</p>
+
+      <h3 id="prompt-components">Components</h3>
+      <p>Which parts of the stack to install:</p>
+      <ul>
+        <li><strong>Prometheus</strong> – The metrics collector. Numbers, graphs, and the occasional existential crisis about cardinality.</li>
+        <li><strong>Grafana</strong> – Pretty dashboards. The only thing we expose to the world when you’re behind nginx-proxy.</li>
+        <li><strong>Loki</strong> – Log aggregation. Like Prometheus, but for logs. No, we’re not making this up.</li>
+        <li><strong>Promtail</strong> – Ships logs to Loki. The loyal sidekick. Node Exporter comes along for the ride when Prometheus is installed.</li>
+      </ul>
+
+      <h3 id="prompt-network">Network / Select interface</h3>
+      <p>Which IP to bind services to. Netra lists your interfaces (eth0, docker0, etc.). Pick the one the internet can reach—usually the real NIC, not <code>docker0</code>. If you’re not sure, 1 is often the right answer.</p>
+
+      <h3 id="prompt-grafana">Grafana</h3>
+      <p><strong>Where to run</strong> – Same server or a remote one. <strong>Authentication</strong> – Turn it on unless you like living dangerously. <strong>Port</strong> – Default 3000; we’ll grab the next free one if it’s taken. When behind nginx-proxy, only Grafana gets a public URL; the rest stay behind the curtain.</p>
+
+      <h3 id="prompt-prometheus">Prometheus</h3>
+      <p><strong>Targets</strong> – Who do you want to spy on? <code>localhost</code> for this machine, or a comma-separated list of <code>host:port</code> for others. <strong>Scrape interval</strong> – How often to scrape (e.g. <code>15s</code>). Don’t go too crazy or Prometheus might start judging your life choices.</p>
+
+      <h3 id="prompt-logs">Logs</h3>
+      <p><strong>Docker container logs?</strong> Yes, please. <strong>System logs (/var/log)?</strong> Also yes, unless you’re a minimalist. <strong>Custom log directories?</strong> Add as many as you want—we’re not judging. <strong>Where to store logs?</strong> Local Loki or a remote Loki server. Choose local unless you’ve already got Loki running somewhere else.</p>
+
+      <h3 id="prompt-proxy">nginx-proxy (if detected)</h3>
+      <p>If Netra spots an nginx-proxy container, it’ll ask whether to put this stack behind it. Say yes and you’ll get a domain and email prompt for Let’s Encrypt (ACME). Only Grafana will be exposed publicly; Prometheus, Loki, and friends stay safely on 127.0.0.1.</p>
+
       <h2 id="config-file">Config file install</h2>
       <p>Use a YAML file to avoid interactive prompts:</p>
       <pre><code>netra install config.yaml</code></pre>
@@ -127,6 +164,13 @@ prometheus:
 logs:
   docker: true
   system: true</code></pre>
+
+      <p>With <strong>nginx-proxy</strong> (only Grafana public, domain + ACME):</p>
+      <pre><code>nginx_proxy:
+  enabled: true
+  domain: grafana.example.com
+  email: you@example.com
+  # network: nginx-proxy   # optional, default</code></pre>
 
       <h2 id="after-install">After install</h2>
       <p>Netra prints the service URLs, for example:</p>

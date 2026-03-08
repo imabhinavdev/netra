@@ -15,8 +15,8 @@ Then open [http://localhost:8080](http://localhost:8080). Or open `index.html` d
 
 ## Deploy (e.g. GitHub Pages)
 
-1. In repo **Settings → Pages**, set source to **GitHub Actions** or **Deploy from a branch**.
-2. If using branch: choose branch `main` and folder `/website` (or put `website` contents in `/docs` and use "Deploy from branch" with docs folder).
-3. If using Actions: add a workflow that copies `website/*` to the Pages artifact.
+**Important:** In repo **Settings → Pages**, set **Source** to **GitHub Actions** (not "Deploy from a branch"). Otherwise GitHub may serve the repository README instead of this website. The workflow in `.github/workflows/pages.yml` copies `website/*` to the Pages artifact.
 
-Root of the site should serve `index.html`; `docs.html` is linked from the landing page.
+1. In repo **Settings → Pages**, set source to **GitHub Actions**.
+2. Push to `main` (or trigger the workflow); the Deploy site job will build and publish the site.
+3. Root of the site will serve `index.html`; `docs.html` is linked from the landing page.

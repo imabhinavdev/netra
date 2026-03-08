@@ -7,6 +7,52 @@ from cli.utils.logger import console
 from cli.utils.shell import run, which
 
 
+def detect_nginx_proxy() -> bool:
+    """Return True if an nginx-proxy container is running (image name contains nginx-proxy)."""
+    if not which("docker"):
+        return False
+    result = run(["docker", "ps", "--format", "{{.Image}}"])
+    if not result.success:
+        return False
+    images = (result.stdout or "").strip().splitlines()
+    for img in images:
+        img_lower = img.lower()
+        if "nginx-proxy" in img_lower or "nginxproxy/nginx-proxy" in img_lower:
+            return True
+    return False
+
+
+def get_nginx_proxy_network() -> Optional[str]:
+    """Return the external network name used by nginx-proxy if detectable, else None."""
+    if not which("docker"):
+        return None
+    result = run(["docker", "ps", "--format", "{{.ID}}\t{{.Image}}"])
+    if not result.success:
+        return None
+    for line in (result.stdout or "").strip().splitlines():
+        if not line:
+            continue
+        parts = line.split("\t", 1)
+        if len(parts) < 2:
+            continue
+        cid, img = parts[0].strip(), (parts[1] or "").lower()
+        if "nginx-proxy" not in img and "nginxproxy/nginx-proxy" not in img:
+            continue
+        insp = run(["docker", "inspect", cid, "--format", "{{json .NetworkSettings.Networks}}"])
+        if not insp.success or not insp.stdout:
+            return None
+        import json
+        try:
+            networks = json.loads(insp.stdout)
+            for net_name in networks:
+                if net_name and net_name != "bridge":
+                    return net_name
+        except (json.JSONDecodeError, TypeError):
+            pass
+        return None
+    return None
+
+
 def is_docker_available() -> bool:
     """Return True if Docker is installed and runnable."""
     if not which("docker"):

@@ -10,11 +10,13 @@ import typer
 from cli.config import NetraConfig
 from cli.generators import run_all as run_generators
 from cli.installers import compose_up, ensure_docker, open_ports
+from cli.installers.docker import detect_nginx_proxy
 from cli.prompts import (
     prompt_bind_ip,
     run_general_prompts,
     run_grafana_prompts,
     run_logs_prompts,
+    run_proxy_prompts,
     run_prometheus_prompts,
 )
 from cli.state import write_state
@@ -59,6 +61,8 @@ def _gather_config_from_prompts() -> NetraConfig:
     general = run_general_prompts()
     config.apply_overrides(general)
     config.bind_ip = prompt_bind_ip()
+    if detect_nginx_proxy():
+        config.apply_overrides(run_proxy_prompts())
     config.apply_overrides(run_grafana_prompts())
     config.apply_overrides(run_prometheus_prompts())
     config.apply_overrides(run_logs_prompts())
@@ -143,7 +147,10 @@ def install_netra(
     console.print("\n[bold green]Netra setup completed[/bold green]\n")
     base = f"http://{config.bind_ip}"
     if config.install_grafana:
-        console.print(f"Grafana   {base}:{config.port_grafana}")
+        if config.use_nginx_proxy and config.nginx_proxy_domain:
+            console.print(f"Grafana   https://{config.nginx_proxy_domain}")
+        else:
+            console.print(f"Grafana   {base}:{config.port_grafana}")
     if config.install_prometheus:
         console.print(f"Prometheus {base}:{config.port_prometheus}")
     if config.install_loki:

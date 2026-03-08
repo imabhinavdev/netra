@@ -62,9 +62,11 @@ def resolve_ports(config: NetraConfig) -> List[Tuple[str, int, int]]:
 
 
 def get_ports_from_config(config: NetraConfig) -> List[int]:
-    """Return list of ports that are actually used by the stack (for firewall)."""
+    """Return list of ports that are actually used by the stack (for firewall).
+    When use_nginx_proxy is True, Grafana is not bound on host so we don't open its port.
+    """
     ports: List[int] = []
-    if config.install_grafana:
+    if config.install_grafana and not getattr(config, "use_nginx_proxy", False):
         ports.append(config.port_grafana)
     if config.install_prometheus:
         ports.append(config.port_prometheus)
