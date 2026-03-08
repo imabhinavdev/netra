@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docs – Netra</title>
+  <meta name="description" content="Netra documentation: installation, commands, config, and deployment.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">Netra<span>.</span></a>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+      <nav>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="docs.html" class="active">Docs</a></li>
+          <li><a href="https://github.com/imabhinavdev/netra" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="#installation" class="nav-cta">Get Started</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container docs-layout">
+    <aside class="docs-sidebar">
+      <nav>
+        <span class="nav-section">Overview</span>
+        <a href="#overview">Overview</a>
+        <a href="#prerequisites">Prerequisites</a>
+        <span class="nav-section">Setup</span>
+        <a href="#installation">Installation</a>
+        <a href="#commands">Commands</a>
+        <a href="#deployment-modes">Deployment modes</a>
+        <span class="nav-section">Config</span>
+        <a href="#config-file">Config file</a>
+        <a href="#after-install">After install</a>
+        <span class="nav-section">Community</span>
+        <a href="#contributing">Contributing</a>
+      </nav>
+    </aside>
+
+    <article class="docs-content">
+      <h1>Documentation</h1>
+      <p>Netra is an open-source DevOps CLI that installs and manages a complete observability stack (Prometheus, Grafana, Loki, Promtail, Node Exporter) on Linux servers.</p>
+
+      <h2 id="overview">Overview</h2>
+      <p>Run <code>netra install</code> and Netra will:</p>
+      <ul>
+        <li>Detect your server environment (interfaces, firewall, Docker)</li>
+        <li>Ask configuration questions (or use a YAML config file)</li>
+        <li>Generate configuration files from Jinja2 templates</li>
+        <li>Install Docker if needed</li>
+        <li>Deploy monitoring services via Docker Compose</li>
+        <li>Configure firewall rules (optional)</li>
+        <li>Start the stack and show service URLs</li>
+      </ul>
+
+      <h2 id="prerequisites">Prerequisites</h2>
+      <ul>
+        <li><strong>Linux</strong> – Primary target; other platforms may work for <code>generate</code> / <code>scan</code> only.</li>
+        <li><strong>Python 3.12+</strong> – Or use a released binary.</li>
+        <li><strong>Docker</strong> – For install; Netra can install it if missing. Optional: <code>curl</code> for the Docker install script.</li>
+      </ul>
+
+      <h2 id="installation">Installation</h2>
+      <p><strong>With pip</strong> (recommended; works everywhere including CI):</p>
+      <pre><code>git clone https://github.com/imabhinavdev/netra.git
+cd netra
+pip install -r requirements-dev.txt   # or: pip install -r requirements.txt
+python -m cli.main --help</code></pre>
+
+      <p><strong>With PDM</strong> (optional, for local development):</p>
+      <pre><code>git clone https://github.com/imabhinavdev/netra.git
+cd netra
+pdm install
+pdm run netra --help</code></pre>
+
+      <p>If <code>pdm install</code> fails with a requirement error, use the pip method above or run <code>pdm run pip install -r requirements.txt</code>.</p>
+
+      <h2 id="commands">Commands</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>netra install [config.yaml]</code></td><td>Install the stack (interactive or from config file)</td></tr>
+          <tr><td><code>netra install --dry-run</code></td><td>Show what would be done without making changes</td></tr>
+          <tr><td><code>netra scan</code></td><td>Show network interfaces, firewall, and Docker status</td></tr>
+          <tr><td><code>netra generate [-o DIR]</code></td><td>Generate config files only (no Docker/install)</td></tr>
+          <tr><td><code>netra status [--install-dir DIR]</code></td><td>Show running services</td></tr>
+          <tr><td><code>netra update [--install-dir DIR]</code></td><td>Pull latest images and restart stack</td></tr>
+          <tr><td><code>netra uninstall [--install-dir] [--remove-configs]</code></td><td>Remove stack (and optionally config files)</td></tr>
+          <tr><td><code>netra cluster add [IP]</code></td><td>Add a remote server (Node Exporter + Promtail via SSH)</td></tr>
+          <tr><td><code>netra check</code></td><td>Quick environment check</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="deployment-modes">Deployment modes</h2>
+      <ul>
+        <li><strong>Single server</strong> – All services (Prometheus, Grafana, Loki, Promtail, Node Exporter) on one machine.</li>
+        <li><strong>Distributed</strong> – Run components on different hosts; use config files or multiple <code>netra install</code> runs with different options.</li>
+      </ul>
+
+      <h2 id="config-file">Config file install</h2>
+      <p>Use a YAML file to avoid interactive prompts:</p>
+      <pre><code>netra install config.yaml</code></pre>
+
+      <p>Example <code>config.yaml</code>:</p>
+      <pre><code>deployment:
+  mode: single
+
+grafana:
+  enabled: true
+  port: 3000
+
+prometheus:
+  scrape_interval: 15s
+
+logs:
+  docker: true
+  system: true</code></pre>
+
+      <h2 id="after-install">After install</h2>
+      <p>Netra prints the service URLs, for example:</p>
+      <ul>
+        <li><strong>Grafana</strong> – http://&lt;bind_ip&gt;:3000</li>
+        <li><strong>Prometheus</strong> – http://&lt;bind_ip&gt;:9090</li>
+        <li><strong>Loki</strong> – http://&lt;bind_ip&gt;:3100</li>
+      </ul>
+      <p>Default install directory: <code>~/netra</code>. Use <code>--install-dir</code> with <code>status</code>, <code>update</code>, and <code>uninstall</code> if you chose another path.</p>
+
+      <h2 id="contributing">Contributing</h2>
+      <p>Contributions are welcome. See <a href="https://github.com/imabhinavdev/netra/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines and <a href="https://github.com/imabhinavdev/netra/blob/main/CODE_OF_CONDUCT.md">CODE_OF_CONDUCT.md</a> for community standards. To report security issues, see <a href="https://github.com/imabhinavdev/netra/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+
+      <p><strong>License:</strong> Copyright (c) 2025 Abhinav Singh. Licensed under the <a href="https://github.com/imabhinavdev/netra/blob/main/LICENSE">MIT License</a>.</p>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Netra by <a href="https://github.com/imabhinavdev" target="_blank" rel="noopener">Abhinav Singh</a> · <a href="index.html">Home</a> · <a href="https://github.com/imabhinavdev/netra">GitHub</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', function () {
+      document.getElementById('nav-links').classList.toggle('is-open');
+    });
+    // Highlight active doc link from scroll position
+    var sections = document.querySelectorAll('.docs-content h2[id]');
+    var navLinks = document.querySelectorAll('.docs-sidebar a[href^="#"]');
+    function updateActive() {
+      var top = window.scrollY || document.documentElement.scrollTop;
+      for (var i = sections.length - 1; i >= 0; i--) {
+        if (sections[i].offsetTop - 100 <= top) {
+          navLinks.forEach(function(a) {
+            a.classList.remove('active');
+            if (a.getAttribute('href') === '#' + sections[i].id) a.classList.add('active');
+          });
+          break;
+        }
+      }
+    }
+    window.addEventListener('scroll', updateActive);
+    window.addEventListener('load', updateActive);
+  </script>
+</body>
+</html>

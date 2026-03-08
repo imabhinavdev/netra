@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netra – Observability Stack Bootstrap CLI</title>
+  <meta name="description" content="One-command observability: deploy Prometheus, Grafana, Loki, Promtail & Node Exporter on Linux.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">Netra<span>.</span></a>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+      <nav>
+        <ul class="nav-links" id="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="docs.html">Docs</a></li>
+          <li><a href="https://github.com/imabhinavdev/netra" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="docs.html#installation" class="nav-cta">Get Started</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>Observability in <span class="accent">one command</span></h1>
+        <p>Netra is an open-source CLI that installs and manages a complete monitoring stack on Linux: Prometheus, Grafana, Loki, Promtail, and Node Exporter. No manual config—just run and go.</p>
+        <div class="hero-buttons">
+          <a href="docs.html#installation" class="btn btn-primary">View Docs</a>
+          <a href="https://github.com/imabhinavdev/netra" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+        <div class="hero-code">
+          <pre><span class="prompt">$</span> netra install</pre>
+        </div>
+        <div class="stack-list">
+          <span class="stack-badge">Prometheus</span>
+          <span class="stack-badge">Grafana</span>
+          <span class="stack-badge">Loki</span>
+          <span class="stack-badge">Promtail</span>
+          <span class="stack-badge">Node Exporter</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <h2>Why Netra?</h2>
+        <div class="features-grid">
+          <article class="feature-card">
+            <h3>Single command</h3>
+            <p>Run <code>netra install</code>. Answer a few prompts. Get a full stack with Grafana, Prometheus, Loki, and more—no manual YAML.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Docker-based</h3>
+            <p>Everything runs in containers. Netra checks for Docker, installs it if needed, and brings the stack up with Docker Compose.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Flexible deployment</h3>
+            <p>Single-server or distributed. Use interactive prompts or a YAML config file. Add remote agents with <code>netra cluster add</code>.</p>
+          </article>
+          <article class="feature-card">
+            <h3>Template-driven</h3>
+            <p>Jinja2-generated configs for Prometheus, Loki, Promtail, and Compose. Customize once, regenerate anytime with <code>netra generate</code>.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero" style="padding-top: 2rem; padding-bottom: 3rem;">
+      <div class="container">
+        <h2 style="margin-top: 0;">Ready to get started?</h2>
+        <p>Install from source with pip or PDM, then run <code>netra install</code> on your Linux server.</p>
+        <div class="hero-buttons">
+          <a href="docs.html" class="btn btn-primary">Read the Docs</a>
+          <a href="https://github.com/imabhinavdev/netra" class="btn btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Netra by <a href="https://github.com/imabhinavdev" target="_blank" rel="noopener">Abhinav Singh</a> · <a href="https://github.com/imabhinavdev/netra/blob/main/LICENSE">MIT License</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', function () {
+      document.getElementById('nav-links').classList.toggle('is-open');
+    });
+  </script>
+</body>
+</html>
