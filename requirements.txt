@@ -1,0 +1,6 @@
+# Netra runtime dependencies (keep in sync with pyproject.toml)
+typer>=0.24.1
+rich>=13.0.0
+Jinja2>=3.1.0
+PyYAML>=6.0
+paramiko>=3.0.0

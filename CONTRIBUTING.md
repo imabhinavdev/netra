@@ -23,10 +23,14 @@ This project adheres to the [Contributor Covenant Code of Conduct](CODE_OF_CONDU
 
 1. **Fork** the repository and clone your fork.
 2. Create a **branch** from `main`: `git checkout -b feature/your-feature` or `fix/your-fix`.
-3. **Install** dev dependencies:
+3. **Install** dev dependencies (use either):
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+   or, if you use PDM:
    ```bash
    pdm install
-   pdm run pip install typer rich Jinja2 PyYAML paramiko  # if pdm install fails
+   pdm run pip install -r requirements.txt   # if pdm install fails
    ```
 4. **Make your changes.** Keep the code style consistent (we use a simple, readable style).
 5. **Run tests**: `pdm run pytest tests/ -v`

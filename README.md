@@ -36,7 +36,16 @@ Netra will detect your environment, ask a few questions, generate configs, insta
 
 ## Installation
 
-From source (PDM):
+From source with **pip** (recommended; works everywhere including CI):
+
+```bash
+git clone https://github.com/imabhinavdev/netra.git
+cd netra
+pip install -r requirements-dev.txt   # or: pip install -r requirements.txt
+python -m cli.main --help
+```
+
+From source with **PDM** (optional, for local development):
 
 ```bash
 git clone https://github.com/imabhinavdev/netra.git
@@ -45,18 +54,10 @@ pdm install
 pdm run netra --help
 ```
 
-If `pdm install` fails with `RequirementError: >: Expected package name...`, install dependencies with pip inside the PDM env instead:
+If `pdm install` fails with `RequirementError: >: Expected package name...`, use the pip method above or run:
 
 ```bash
-pdm run pip install typer rich Jinja2 PyYAML paramiko
-```
-
-Then run `pdm run netra` or `pdm run python cli/main.py` as usual. (Upgrading PDM may also resolve the issue.)
-
-Or use the `netra` script entrypoint from the project root:
-
-```bash
-pdm run netra install
+pdm run pip install -r requirements.txt
 ```
 
 ---
