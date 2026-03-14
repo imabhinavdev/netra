@@ -75,19 +75,21 @@
       </ul>
 
       <h2 id="installation">Installation</h2>
-      <p><strong>With pip</strong> (recommended; works everywhere including CI):</p>
+      <p><strong>Recommended:</strong> download the latest Linux release binary from <a href="https://github.com/imabhinavdev/netra/releases/latest" target="_blank" rel="noopener">GitHub Releases</a>.</p>
+      <pre><code>wget https://github.com/imabhinavdev/netra/releases/latest/download/netra-linux-x86_64
+chmod +x netra-linux-x86_64
+./netra-linux-x86_64 --help</code></pre>
+
+      <p>Then run the installer:</p>
+      <pre><code>./netra-linux-x86_64 install</code></pre>
+
+      <p>If you already downloaded it in your browser, just put the binary on the server, run <code>chmod +x netra-linux-x86_64</code>, and use it directly. Nice and boring in the best way.</p>
+
+      <p><strong>From source</strong> is still available if you want to hack on Netra itself:</p>
       <pre><code>git clone https://github.com/imabhinavdev/netra.git
 cd netra
-pip install -r requirements-dev.txt   # or: pip install -r requirements.txt
+pip install -r requirements-dev.txt
 python -m cli.main --help</code></pre>
-
-      <p><strong>With PDM</strong> (optional, for local development):</p>
-      <pre><code>git clone https://github.com/imabhinavdev/netra.git
-cd netra
-pdm install
-pdm run netra --help</code></pre>
-
-      <p>If <code>pdm install</code> fails with a requirement error, use the pip method above or run <code>pdm run pip install -r requirements.txt</code>.</p>
 
       <h2 id="commands">Commands</h2>
       <div class="table-wrapper">
@@ -121,7 +123,18 @@ pdm run netra --help</code></pre>
       <h2 id="install-prompts">Install prompts explained</h2>
       <p>When you run <code>netra install</code> without a config file, Netra will ask you a bunch of questions. Here’s what each one means—and yes, we’ll keep it short and slightly silly.</p>
 
-      <p><strong>Prompt order (and typical defaults):</strong> (1) Deployment mode → single; (2) Install directory → ~/netra; (3) Firewall (ufw) → yes/no; (4) Components (Prometheus, Grafana, Loki, Promtail, Node Exporter) → all on for single server; (5) Network / bind IP → choose interface; (6) Grafana (remote?, auth?, port) → same server, auth on, port 3000; (7) Prometheus (targets, scrape interval); (8) Logs (Docker, system, custom dirs, Loki destination); (9) If nginx-proxy detected: use proxy?, domain, email.</p>
+      <p><strong>Prompt order (and typical defaults):</strong></p>
+      <ol>
+        <li><strong>Deployment mode</strong> – usually <code>single</code>.</li>
+        <li><strong>Install directory</strong> – usually <code>~/netra</code>.</li>
+        <li><strong>Firewall (ufw)</strong> – yes or no, depending on whether you want Netra to open ports for you.</li>
+        <li><strong>Components</strong> – Prometheus, Grafana, Loki, Promtail, and Node Exporter; usually all enabled for a single-server install.</li>
+        <li><strong>Network / bind IP</strong> – choose the interface to bind services to.</li>
+        <li><strong>Grafana</strong> – remote or same server, authentication on or off, and port; default is same server with port <code>3000</code>.</li>
+        <li><strong>Prometheus</strong> – scrape targets and scrape interval.</li>
+        <li><strong>Logs</strong> – Docker logs, system logs, custom paths, and where logs should be stored.</li>
+        <li><strong>Proxy</strong> – if <code>nginx-proxy</code> is detected, Netra asks whether to use it, plus the domain and ACME email.</li>
+      </ol>
 
       <h3 id="prompt-deployment">Deployment</h3>
       <p><strong>Single server</strong> vs <strong>Distributed</strong>. One box to rule them all, or spread the love across multiple machines. Pick single unless you’re doing a multi-host setup; we won’t judge either way.</p>
